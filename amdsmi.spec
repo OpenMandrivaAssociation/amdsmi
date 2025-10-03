@@ -46,7 +46,7 @@ AMD System Management Interface (SMI) for managing and monitoring GPUs
 %prep -a
 tar xf %{S:1}
 mv esmi_ib_library-* esmi_ib_library
-sed -i 's/NOT latest_esmi_tag/NOT "esmi_pkg_ver-%{esmi_version}"/' CMakeLists.txt
+sed -i 's/NOT latest_esmi_tag/NOT "esmi_pkg_ver-4.2"/' CMakeLists.txt
 
 %files
 %{_bindir}/*
