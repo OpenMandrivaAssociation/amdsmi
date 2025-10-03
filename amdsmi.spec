@@ -10,6 +10,9 @@ Name:		amdsmi
 Version:	7.0.1
 Release:	1
 Source0:	https://github.com/ROCm/amdsmi/archive/refs/tags/rocm-%{version}.tar.gz
+# Library expected to be unpacked inside the tree
+%global esmi_version 4.3
+Source1:	https://github.com/amd/esmi_ib_library/archive/refs/tags/esmi_so_ver-%{esmi_version}.tar.gz
 Summary:	AMD System Management Interface (SMI) for managing and monitoring GPUs
 URL:		https://github.com/ROCm/amdsmi
 License:	GPL
@@ -39,6 +42,11 @@ Requires:	%{libname} = %{EVRD}
 Development files (Headers etc.) for %{name}.
 
 AMD System Management Interface (SMI) for managing and monitoring GPUs
+
+%prep -a
+tar xf %{S:1}
+mv esmi_ib_library-* esmi_ib_library
+sed -i 's/NOT latest_esmi_tag/NOT "esmi_pkg_ver-%{esmi_version}"/' CMakeLists.txt
 
 %files
 %{_bindir}/*
