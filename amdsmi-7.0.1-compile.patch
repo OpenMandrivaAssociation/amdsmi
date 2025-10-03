@@ -1,0 +1,35 @@
+diff -up amdsmi-7.0.1/CMakeLists.txt.omv~ amdsmi-7.0.1/CMakeLists.txt
+--- amdsmi-7.0.1/CMakeLists.txt.omv~	2025-10-03 22:55:36.602516945 +0200
++++ amdsmi-7.0.1/CMakeLists.txt	2025-10-03 22:55:42.659617109 +0200
+@@ -77,7 +77,7 @@ set(PKG_VERSION_NUM_COMMIT 0)
+ project(${AMD_SMI_LIBS_TARGET} DESCRIPTION "AMD System Management libraries"
+         HOMEPAGE_URL "https://github.com/ROCm/amdsmi")
+ 
+-set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD 20)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ set(CMAKE_CXX_EXTENSIONS OFF)
+ 
+diff -up amdsmi-7.0.1/goamdsmi_shim/CMakeLists.txt.omv~ amdsmi-7.0.1/goamdsmi_shim/CMakeLists.txt
+--- amdsmi-7.0.1/goamdsmi_shim/CMakeLists.txt.omv~	2025-10-03 23:29:10.089239262 +0200
++++ amdsmi-7.0.1/goamdsmi_shim/CMakeLists.txt	2025-10-03 23:29:33.360021498 +0200
+@@ -90,8 +90,6 @@ add_library(${GOAMDSMI_SHIM_TARGET} SHAR
+ target_link_libraries(${GOAMDSMI_SHIM_TARGET} pthread rt m)
+ 
+ target_link_libraries(${GOAMDSMI_SHIM_TARGET} amd_smi)
+-target_link_libraries(${GOAMDSMI_SHIM_TARGET} -L${AMDSMI_DIR}/lib)
+-target_link_libraries(${GOAMDSMI_SHIM_TARGET} -L${AMDSMI_DIR}/lib64)
+ 
+ ## Set the VERSION and SOVERSION values
+ set_property(TARGET ${GOAMDSMI_SHIM_TARGET} PROPERTY SOVERSION "${VERSION_MAJOR}")
+diff -up amdsmi-7.0.1/rocm_smi/include/rocm_smi/rocm_smi_common.h.omv~ amdsmi-7.0.1/rocm_smi/include/rocm_smi/rocm_smi_common.h
+--- amdsmi-7.0.1/rocm_smi/include/rocm_smi/rocm_smi_common.h.omv~	2025-10-03 22:55:00.581671629 +0200
++++ amdsmi-7.0.1/rocm_smi/include/rocm_smi/rocm_smi_common.h	2025-10-03 22:55:08.754046358 +0200
+@@ -28,6 +28,7 @@
+ #include <vector>
+ #include <string>
+ #include <unordered_set>
++#include <cstdint>
+ 
+ #define CHECK_DV_IND_RANGE \
+     amd::smi::RocmSMI& smi = amd::smi::RocmSMI::getInstance(); \
