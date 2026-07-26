@@ -1,64 +1,76 @@
-# Looks like the cmake files are too cluttered to make spotting debugsource
-# files possible
-%undefine _debugsource_packages
-
-%define major 0
-%define libname %mklibname amdsmi
-%define devname %mklibname amdsmi -d
-
 Name:		amdsmi
-Version:	7.0.1
+Version:	7.14.0
+# Upstream SOVERSION year.minor
+%global sover 26.5.0
 Release:	1
-Source0:	https://github.com/ROCm/amdsmi/archive/refs/tags/rocm-%{version}.tar.gz
-# Library expected to be unpacked inside the tree
-%global esmi_version 4.3
-Source1:	https://github.com/amd/esmi_ib_library/archive/refs/tags/esmi_so_ver-%{esmi_version}.tar.gz
-Summary:	AMD System Management Interface (SMI) for managing and monitoring GPUs
-URL:		https://github.com/ROCm/amdsmi
-License:	GPL
+Summary:	AMD System Management Interface library
+License:	MIT
 Group:		System/Libraries
-BuildRequires:	cmake
-BuildSystem:	cmake
+URL:		https://github.com/ROCm/amdsmi
+Source0:	https://github.com/ROCm/rocm-systems/releases/download/therock-7.14/amdsmi.tar.gz#/amdsmi-%{version}.tar.gz
 
-%patchlist
-amdsmi-7.0.1-compile.patch
+BuildRequires:	rocm-rpm-macros
+BuildRequires:	cmake
+BuildRequires:	ninja
+BuildRequires:	pkgconfig(libnl-3.0)
+BuildRequires:	pkgconfig(libnl-genl-3.0)
+BuildRequires:	pkgconfig(libmnl)
+BuildRequires:	pkgconfig(libdrm)
+BuildRequires:	python3
+
+ExclusiveArch:	%{x86_64} %{aarch64}
 
 %description
-AMD System Management Interface (SMI) for managing and monitoring GPUs
+AMD SMI library (libamd_smi) and amd-smi CLI for monitoring AMD GPUs.
+Successor to parts of rocm-smi for modern ROCm stacks.
 
-%package -n %{libname}
-Summary:	AMD System Management Interface (SMI) for managing and monitoring GPUs
-Group:		System/Libraries
-
-%description -n %{libname}
-AMD System Management Interface (SMI) for managing and monitoring GPUs
-
-%package -n %{devname}
+%package devel
 Summary:	Development files for %{name}
 Group:		Development/C
-Requires:	%{libname} = %{EVRD}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
-%description -n %{devname}
-Development files (Headers etc.) for %{name}.
+%description devel
+Headers and CMake package for amdsmi.
 
-AMD System Management Interface (SMI) for managing and monitoring GPUs
+%prep
+%autosetup -n amdsmi -p1
 
-%prep -a
-tar xf %{S:1}
-mv esmi_ib_library-* esmi_ib_library
-sed -i 's/NOT latest_esmi_tag/NOT "esmi_pkg_ver-4.2"/' CMakeLists.txt
+%cmake \
+	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+	-DBUILD_TESTS=OFF \
+	-DBUILD_WRAPPER=OFF \
+	-G Ninja
+
+%build
+%ninja_build -C build
+
+%install
+%ninja_install -C build
+# Drop example sources and go shim for now (optional later)
+rm -rf %{buildroot}%{_datadir}/amd_smi/example
+rm -f %{buildroot}%{_libdir}/libgoamdsmi_shim64.so*
+rm -f %{buildroot}%{_includedir}/goamdsmi.h
+rm -f %{buildroot}%{_includedir}/amdsmi_go_shim.h
+# Fix non-RPM-safe cmake versions if present
+sed -i -e 's/PACKAGE_VERSION "[^"]*local[^"]*"/PACKAGE_VERSION "%{version}"/' \
+	-e 's/= [0-9.]*.*-local.*/= %{version}/' \
+	%{buildroot}%{_libdir}/cmake/amd_smi/*version*.cmake \
+	%{buildroot}%{_libdir}/cmake/amd_smi/*config*.cmake 2>/dev/null || true
 
 %files
-%{_bindir}/*
-%{_libexecdir}/amdsmi_cli
-%{_datadir}/amd_smi
-%doc %{_docdir}/amd-smi-lib
+%license LICENSE
+%doc README.md
+%{_bindir}/amd-smi
+%{_libdir}/libamd_smi.so.%{sover}
+%{_libdir}/libamd_smi.so.26
+%{_libexecdir}/amdsmi_cli/
+%{_datadir}/amd_smi/
+%exclude %{_docdir}/amd-smi-lib/*
 
-%files -n %{libname}
-%{_libdir}/*.so.%{major}*
-%{_libdir}/libgoamdsmi_shim64.so.*
-
-%files -n %{devname}
-%{_includedir}/*
-%{_libdir}/*.so
-%{_libdir}/cmake/*
+%files devel
+%{_includedir}/amd_smi/
+%{_includedir}/e_smi/
+%{_includedir}/rocm_smi/
+%{_libdir}/libamd_smi.so
+%{_libdir}/libamdsminic.a
+%{_libdir}/cmake/amd_smi/
