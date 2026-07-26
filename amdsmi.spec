@@ -8,6 +8,8 @@ License:	MIT
 Group:		System/Libraries
 URL:		https://github.com/ROCm/amdsmi
 Source0:	https://github.com/ROCm/rocm-systems/releases/download/therock-7.14/amdsmi.tar.gz#/amdsmi-%{version}.tar.gz
+# TheRock tarball omits esmi submodule; pin to tag used by amdsmi CMakeLists
+Source1:	esmi_ib_library-5.2.1.1.tar.gz
 
 BuildRequires:	rocm-rpm-macros
 BuildRequires:	cmake
@@ -18,7 +20,7 @@ BuildRequires:	pkgconfig(libmnl)
 BuildRequires:	pkgconfig(libdrm)
 BuildRequires:	python3
 
-ExclusiveArch:	%{x86_64} %{aarch64}
+ExclusiveArch:	%{x86_64}
 
 %description
 AMD SMI library (libamd_smi) and amd-smi CLI for monitoring AMD GPUs.
@@ -34,6 +36,11 @@ Headers and CMake package for amdsmi.
 
 %prep
 %autosetup -n amdsmi -p1
+
+# Bundle esmi (ABF has no network for git clone of the submodule)
+tar -xzf %{SOURCE1}
+rm -rf esmi_ib_library
+mv esmi_ib_library-esmi_pkg_ver-5.2.1.1 esmi_ib_library
 
 %cmake \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
