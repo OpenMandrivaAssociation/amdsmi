@@ -2,7 +2,7 @@ Name:		amdsmi
 Version:	7.14.0
 # Upstream SOVERSION year.minor
 %global sover 26.5.0
-Release:	3
+Release:	4
 Summary:	AMD System Management Interface library
 License:	MIT
 Group:		System/Libraries
@@ -14,6 +14,7 @@ Source1:	esmi_ib_library-5.2.1.1.tar.gz
 BuildRequires:	rocm-rpm-macros
 BuildRequires:	cmake
 BuildRequires:	ninja
+BuildRequires:	git-core
 BuildRequires:	pkgconfig(libnl-3.0)
 BuildRequires:	pkgconfig(libnl-genl-3.0)
 BuildRequires:	pkgconfig(libmnl)
@@ -41,11 +42,21 @@ Headers and CMake package for amdsmi.
 tar -xzf %{SOURCE1}
 rm -rf esmi_ib_library
 mv esmi_ib_library-esmi_pkg_ver-5.2.1.1 esmi_ib_library
+# CMake compares git tags and would re-clone esmi online on mismatch; mark
+# the bundled tree as the expected tag so offline builds succeed.
+(
+	cd esmi_ib_library
+	git init -q
+	git config user.email 'build@localhost'
+	git config user.name 'rpmbuild'
+	git add -A
+	git commit -q -m 'bundled esmi'
+	git tag esmi_pkg_ver-5.2.1.1
+)
 
 # goamdsmi_shim is x86-only (-msse/-msse2) and links ESMI CPU symbols that
 # are not built on non-x86; we never package the shim either.
 sed -i -e '/add_subdirectory(goamdsmi_shim)/d' CMakeLists.txt
-
 %cmake \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DBUILD_TESTS=OFF \
