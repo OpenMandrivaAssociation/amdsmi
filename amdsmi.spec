@@ -2,7 +2,7 @@ Name:		amdsmi
 Version:	7.14.0
 # Upstream SOVERSION year.minor
 %global sover 26.5.0
-Release:	1
+Release:	2
 Summary:	AMD System Management Interface library
 License:	MIT
 Group:		System/Libraries
@@ -20,7 +20,6 @@ BuildRequires:	pkgconfig(libmnl)
 BuildRequires:	pkgconfig(libdrm)
 BuildRequires:	python3
 
-ExclusiveArch:	%{x86_64}
 
 %description
 AMD SMI library (libamd_smi) and amd-smi CLI for monitoring AMD GPUs.
