@@ -2,7 +2,7 @@ Name:		amdsmi
 Version:	7.14.0
 # Upstream SOVERSION year.minor
 %global sover 26.5.0
-Release:	2
+Release:	3
 Summary:	AMD System Management Interface library
 License:	MIT
 Group:		System/Libraries
@@ -36,17 +36,21 @@ Headers and CMake package for amdsmi.
 %prep
 %autosetup -n amdsmi -p1
 
-# Bundle esmi (ABF has no network for git clone of the submodule)
+# Bundle esmi (ABF has no network for git clone of the submodule).
+# Upstream enables ESMI only on x86_64; still unpack so header install GLOB works.
 tar -xzf %{SOURCE1}
 rm -rf esmi_ib_library
 mv esmi_ib_library-esmi_pkg_ver-5.2.1.1 esmi_ib_library
+
+# goamdsmi_shim is x86-only (-msse/-msse2) and links ESMI CPU symbols that
+# are not built on non-x86; we never package the shim either.
+sed -i -e '/add_subdirectory(goamdsmi_shim)/d' CMakeLists.txt
 
 %cmake \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DBUILD_TESTS=OFF \
 	-DBUILD_WRAPPER=OFF \
 	-G Ninja
-
 %build
 %ninja_build -C build
 
