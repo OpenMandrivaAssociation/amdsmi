@@ -1,13 +1,13 @@
 Name:		amdsmi
-Version:	7.14.0
-# Upstream SOVERSION year.minor
-%global sover 26.5.0
-Release:	4
+Version:	10.0.0
+# Upstream SOVERSION (ROCm 10.0 / AMD SMI 27)
+%global sover 27.0.0
+Release:	1
 Summary:	AMD System Management Interface library
 License:	MIT
 Group:		System/Libraries
 URL:		https://github.com/ROCm/amdsmi
-Source0:	https://github.com/ROCm/rocm-systems/releases/download/therock-7.14/amdsmi.tar.gz#/amdsmi-%{version}.tar.gz
+Source0:	https://github.com/ROCm/rocm-systems/releases/download/therock-10.0/amdsmi.tar.gz#/amdsmi-%{version}.tar.gz
 # TheRock tarball omits esmi submodule; pin to tag used by amdsmi CMakeLists
 Source1:	esmi_ib_library-5.2.1.1.tar.gz
 
@@ -82,8 +82,7 @@ sed -i -e 's/PACKAGE_VERSION "[^"]*local[^"]*"/PACKAGE_VERSION "%{version}"/' \
 %license LICENSE
 %doc README.md
 %{_bindir}/amd-smi
-%{_libdir}/libamd_smi.so.%{sover}
-%{_libdir}/libamd_smi.so.26
+%{_libdir}/libamd_smi.so.*
 %{_libexecdir}/amdsmi_cli/
 %{_datadir}/amd_smi/
 %exclude %{_docdir}/amd-smi-lib/*
