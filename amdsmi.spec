@@ -8,13 +8,12 @@ License:	MIT
 Group:		System/Libraries
 URL:		https://github.com/ROCm/amdsmi
 Source0:	https://github.com/ROCm/rocm-systems/releases/download/therock-10.0/amdsmi.tar.gz#/amdsmi-%{version}.tar.gz
-# TheRock tarball omits esmi submodule; pin to tag used by amdsmi CMakeLists
-Source1:	esmi_ib_library-5.2.1.1.tar.gz
+# TheRock tarball omits esmi; pin is ESMI_GIT_HASH in 10.0 CMakeLists.txt
+Source1:	https://github.com/amd/esmi_ib_library/archive/d494a3194ceb4cc4dbb2debf9fcbe8773c6d3bef.tar.gz#/esmi_ib_library-d494a319.tar.gz
 
 BuildRequires:	rocm-rpm-macros
 BuildRequires:	cmake
 BuildRequires:	ninja
-BuildRequires:	git-core
 BuildRequires:	pkgconfig(libnl-3.0)
 BuildRequires:	pkgconfig(libnl-genl-3.0)
 BuildRequires:	pkgconfig(libmnl)
@@ -37,22 +36,13 @@ Headers and CMake package for amdsmi.
 %prep
 %autosetup -n amdsmi -p1
 
-# Bundle esmi (ABF has no network for git clone of the submodule).
+# Bundle esmi (ABF has no network for FetchContent git clone).
+# 10.0 re-fetches if esmi_ib_library/.git exists and HEAD != ESMI_GIT_HASH.
+# Unpack without a .git so cmake reuses src/e_smi.c offline.
 # Upstream enables ESMI only on x86_64; still unpack so header install GLOB works.
 tar -xzf %{SOURCE1}
 rm -rf esmi_ib_library
-mv esmi_ib_library-esmi_pkg_ver-5.2.1.1 esmi_ib_library
-# CMake compares git tags and would re-clone esmi online on mismatch; mark
-# the bundled tree as the expected tag so offline builds succeed.
-(
-	cd esmi_ib_library
-	git init -q
-	git config user.email 'build@localhost'
-	git config user.name 'rpmbuild'
-	git add -A
-	git commit -q -m 'bundled esmi'
-	git tag esmi_pkg_ver-5.2.1.1
-)
+mv esmi_ib_library-d494a3194ceb4cc4dbb2debf9fcbe8773c6d3bef esmi_ib_library
 
 # goamdsmi_shim is x86-only (-msse/-msse2) and links ESMI CPU symbols that
 # are not built on non-x86; we never package the shim either.
