@@ -1,14 +1,14 @@
 Name:		amdsmi
-Version:	10.1.0
-# Upstream library VERSION (ROCm 10.1 / AMD SMI 27.1); SONAME stays .so.27
-%global sover 27.1.0
+Version:	10.2.0
+# Upstream library VERSION (ROCm 10.2 / AMD SMI 27.2); SONAME stays .so.27
+%global sover 27.2.0
 Release:	1
 Summary:	AMD System Management Interface library
 License:	MIT
 Group:		System/Libraries
 URL:		https://github.com/ROCm/amdsmi
-Source0:	https://github.com/ROCm/rocm-systems/releases/download/therock-10.1/amdsmi.tar.gz#/amdsmi-%{version}.tar.gz
-# TheRock tarball omits esmi; pin is ESMI_GIT_HASH in 10.1 CMakeLists.txt
+Source0:	https://github.com/ROCm/rocm-systems/releases/download/therock-10.2/amdsmi.tar.gz#/amdsmi-%{version}.tar.gz
+# TheRock tarball omits esmi; pin is ESMI_GIT_HASH in 10.2 CMakeLists.txt
 Source1:	https://github.com/amd/esmi_ib_library/archive/d494a3194ceb4cc4dbb2debf9fcbe8773c6d3bef.tar.gz#/esmi_ib_library-d494a319.tar.gz
 
 BuildRequires:	rocm-rpm-macros
@@ -37,7 +37,7 @@ Headers and CMake package for amdsmi.
 %autosetup -n amdsmi -p1
 
 # Bundle esmi (ABF has no network for FetchContent git clone).
-# 10.1 re-fetches if esmi_ib_library/.git exists and HEAD != ESMI_GIT_HASH.
+# 10.2 re-fetches if esmi_ib_library/.git exists and HEAD != ESMI_GIT_HASH.
 # Unpack without a .git so cmake reuses src/e_smi.c offline.
 # Upstream enables ESMI only on x86_64; still unpack so header install GLOB works.
 tar -xzf %{SOURCE1}
@@ -75,7 +75,7 @@ sed -i -e 's/PACKAGE_VERSION "[^"]*local[^"]*"/PACKAGE_VERSION "%{version}"/' \
 %{_libdir}/libamd_smi.so.*
 %{_libexecdir}/amdsmi_cli/
 %{_datadir}/amd_smi/
-# 10.1 copies the importable module into site-packages when DESTDIR is set
+# 10.2 copies the importable module into site-packages when DESTDIR is set
 %{python_sitearch}/amdsmi/
 %exclude %{_docdir}/amd-smi-lib/*
 
